@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CalorieX — Track Smarter</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0d0f14;
+  --surface:#13161e;
+  --card:#1a1e28;
+  --border:#252a38;
+  --border-hi:#2e3548;
+  --accent:#1d9e75;
+  --accent-dim:#145e46;
+  --accent-glow:rgba(29,158,117,0.18);
+  --text:#e8eaf0;
+  --text-muted:#7a8099;
+  --text-dim:#4a5068;
+  --red:#e24b4a;
+  --amber:#ef9f27;
+  --blue:#378add;
+}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+.bg-dots{
+  position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:radial-gradient(circle,#1d9e7511 1px,transparent 1px);
+  background-size:32px 32px;
+  animation:dotdrift 20s linear infinite;
+}
+@keyframes dotdrift{0%{background-position:0 0;}100%{background-position:32px 32px;}}
+.orb{
+  position:fixed;border-radius:50%;pointer-events:none;z-index:0;
+  animation:orbpulse 8s ease-in-out infinite;
+}
+.orb1{width:320px;height:320px;top:-80px;right:-80px;background:radial-gradient(circle,rgba(29,158,117,0.12),transparent 70%);animation-delay:0s;}
+.orb2{width:240px;height:240px;bottom:-60px;left:-60px;background:radial-gradient(circle,rgba(55,138,221,0.10),transparent 70%);animation-delay:3s;}
+@keyframes orbpulse{0%,100%{transform:scale(1);}50%{transform:scale(1.15);}}
+.page{
+  position:relative;z-index:1;
+  min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  padding:2rem 1rem;
+  opacity:0;transform:translateY(24px);
+  transition:opacity 0.5s ease,transform 0.5s ease;
+  pointer-events:none;
+}
+.page.active{opacity:1;transform:translateY(0);pointer-events:all;}
+.page.hidden{display:none;}
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:2rem;
+  width:100%;
+  max-width:440px;
+  animation:cardrise 0.6s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes cardrise{from{opacity:0;transform:translateY(32px);}to{opacity:1;transform:translateY(0);}}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:2rem;justify-content:center;}
+.brand-icon{
+  width:46px;height:46px;border-radius:14px;
+  background:var(--accent-dim);
+  border:1px solid var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  animation:iconpop 0.7s cubic-bezier(.34,1.56,.64,1) both 0.2s;
+}
+@keyframes iconpop{from{transform:scale(0.5);opacity:0;}to{transform:scale(1);opacity:1;}}
+.brand-icon i{font-size:22px;color:var(--accent);}
+.brand-name{font-size:22px;font-weight:700;color:var(--text);letter-spacing:-0.5px;}
+.brand-name span{color:var(--accent);}
+.form-title{font-size:18px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.form-sub{font-size:13px;color:var(--text-muted);margin-bottom:1.5rem;}
+.field{margin-bottom:1rem;}
+.field label{display:block;font-size:12px;color:var(--text-muted);margin-bottom:6px;letter-spacing:0.3px;}
+.field-wrap{position:relative;}
+.field-wrap i{
+  position:absolute;left:13px;top:50%;transform:translateY(-50%);
+  font-size:17px;color:var(--text-dim);pointer-events:none;
+}
+.field-wrap input{
+  width:100%;height:46px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  color:var(--text);
+  font-size:14px;
+  padding:0 14px 0 40px;
+  outline:none;
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+.field-wrap input:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px var(--accent-glow);
+}
+.field-wrap input.err{border-color:var(--red);box-shadow:0 0 0 3px rgba(226,75,74,0.15);}
+.toggle-pass{
+  position:absolute;right:13px;top:50%;transform:translateY(-50%);
+  background:none;border:none;color:var(--text-dim);cursor:pointer;
+  font-size:17px;padding:0;
+}
+.toggle-pass:hover{color:var(--text-muted);}
+.btn-primary{
+  width:100%;height:46px;
+  background:var(--accent);
+  color:#fff;
+  border:none;border-radius:12px;
+  font-size:15px;font-weight:600;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:background 0.15s,transform 0.1s,box-shadow 0.2s;
+  margin-top:0.5rem;
+}
+.btn-primary:hover{background:#17825f;box-shadow:0 0 20px rgba(29,158,117,0.35);}
+.btn-primary:active{transform:scale(0.98);}
+.divider{display:flex;align-items:center;gap:10px;margin:1.25rem 0;color:var(--text-dim);font-size:12px;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.link-row{text-align:center;font-size:13px;color:var(--text-muted);}
+.link-row a{color:var(--accent);text-decoration:none;font-weight:500;}
+.link-row a:hover{text-decoration:underline;}
+.error-msg{font-size:12px;color:var(--red);margin-top:5px;display:none;}
+.error-msg.show{display:block;animation:shake 0.3s ease;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-4px);}75%{transform:translateX(4px);}}
+.tracker-wrap{width:100%;max-width:560px;}
+.top-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:16px;padding:12px 18px;margin-bottom:1rem;
+}
+.top-bar-brand{display:flex;align-items:center;gap:10px;}
+.top-bar-brand .mini-icon{width:32px;height:32px;border-radius:10px;background:var(--accent-dim);border:1px solid var(--accent);display:flex;align-items:center;justify-content:center;}
+.top-bar-brand .mini-icon i{font-size:16px;color:var(--accent);}
+.top-bar-brand span{font-size:15px;font-weight:700;color:var(--text);}
+.logout-btn{
+  background:none;border:1px solid var(--border);border-radius:10px;
+  color:var(--text-muted);font-size:12px;padding:6px 12px;cursor:pointer;
+  display:flex;align-items:center;gap:6px;transition:border-color 0.15s,color 0.15s;
+}
+.logout-btn:hover{border-color:var(--red);color:var(--red);}
+.user-badge{
+  font-size:12px;color:var(--text-muted);
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:8px;padding:4px 10px;
+}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem;}
+.stat-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;padding:14px 16px;
+  transition:border-color 0.2s;
+  animation:fadeup 0.5s ease both;
+}
+.stat-card:nth-child(1){animation-delay:0.05s;}
+.stat-card:nth-child(2){animation-delay:0.1s;}
+.stat-card:nth-child(3){animation-delay:0.15s;}
+@keyframes fadeup{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.stat-card:hover{border-color:var(--border-hi);}
+.stat-label{font-size:11px;color:var(--text-dim);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
+.stat-value{font-size:20px;font-weight:700;color:var(--text);}
+.stat-unit{font-size:11px;color:var(--text-dim);font-weight:400;}
+.section{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:16px;padding:1rem 1.25rem;margin-bottom:1rem;
+  animation:fadeup 0.5s ease both;
+}
+.section-hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;}
+.section-lbl{font-size:13px;color:var(--text-muted);}
+.section-val{font-size:15px;font-weight:700;color:var(--text);}
+.bar-bg{height:8px;background:var(--surface);border-radius:99px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:99px;background:var(--accent);width:0%;transition:width 0.5s cubic-bezier(.22,1,.36,1),background 0.4s ease;}
+.feedback-box{
+  border-radius:10px;padding:10px 14px;margin-top:12px;
+  display:flex;align-items:center;gap:10px;font-size:13px;
+  background:rgba(29,158,117,0.12);border:1px solid rgba(29,158,117,0.25);
+  transition:background 0.3s,border-color 0.3s;
+}
+.feedback-box i{font-size:18px;}
+.input-row{display:flex;gap:10px;align-items:center;}
+.cal-input{
+  flex:1;height:44px;background:var(--surface);
+  border:1px solid var(--border);border-radius:12px;
+  color:var(--text);font-size:14px;padding:0 14px;outline:none;
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+.cal-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow);}
+.cal-input.err{border-color:var(--red);animation:shake 0.3s ease;}
+.add-btn{
+  height:44px;padding:0 20px;border-radius:12px;border:none;
+  background:var(--accent);color:#fff;font-size:14px;font-weight:600;
+  cursor:pointer;display:flex;align-items:center;gap:6px;
+  transition:background 0.15s,transform 0.1s,box-shadow 0.2s;
+  white-space:nowrap;
+}
+.add-btn:hover{background:#17825f;box-shadow:0 0 18px rgba(29,158,117,0.4);}
+.add-btn:active{transform:scale(0.97);}
+.log-list{display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto;}
+.log-item{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 12px;background:var(--surface);border-radius:10px;
+  font-size:13px;
+  animation:slideIn 0.3s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes slideIn{from{opacity:0;transform:translateX(-12px);}to{opacity:1;transform:translateX(0);}}
+.log-num{color:var(--text-dim);}
+.log-cal{font-weight:600;color:var(--accent);}
+.empty-log{font-size:13px;color:var(--text-dim);text-align:center;padding:1rem 0;}
+.reset-btn{
+  width:100%;padding:10px;border-radius:12px;
+  border:1px solid var(--border);background:transparent;
+  color:var(--text-muted);font-size:13px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  transition:border-color 0.15s,color 0.15s,background 0.15s;
+}
+.reset-btn:hover{border-color:var(--red);color:var(--red);background:rgba(226,75,74,0.07);}
+.btn-primary,.add-btn{position:relative;overflow:hidden;}
+.btn-primary::after,.add-btn::after{
+  content:'';position:absolute;border-radius:50%;
+  width:0;height:0;background:rgba(255,255,255,0.2);
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  transition:width 0.4s ease,height 0.4s ease,opacity 0.4s;
+  opacity:0;
+}
+.btn-primary:active::after,.add-btn:active::after{width:200px;height:200px;opacity:0;}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border-hi);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<div class="bg-dots"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<!-- LOGIN PAGE -->
+<div class="page active" id="loginPage">
+  <div class="card">
+    <div class="brand">
+      <div class="brand-icon"><i class="ti ti-salad" aria-hidden="true"></i></div>
+      <div class="brand-name">Calorie<span>X</span></div>
+    </div>
+    <p class="form-title">Welcome back</p>
+    <p class="form-sub">Sign in to track your daily nutrition</p>
+    <div class="field">
+      <label for="loginEmail">Email address</label>
+      <div class="field-wrap">
+        <i class="ti ti-mail" aria-hidden="true"></i>
+        <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email"/>
+      </div>
+      <div class="error-msg" id="emailErr">Please enter a valid email.</div>
+    </div>
+    <div class="field">
+      <label for="loginPass">Password</label>
+      <div class="field-wrap">
+        <i class="ti ti-lock" aria-hidden="true"></i>
+        <input type="password" id="loginPass" placeholder="Enter your password" autocomplete="current-password"/>
+        <button class="toggle-pass" onclick="togglePass('loginPass',this)" aria-label="Toggle password visibility">
+          <i class="ti ti-eye"></i>
+        </button>
+      </div>
+      <div class="error-msg" id="passErr">Password must be at least 6 characters.</div>
+    </div>
+    <button class="btn-primary" onclick="doLogin()">
+      <i class="ti ti-arrow-right" aria-hidden="true"></i> Sign in
+    </button>
+    <div class="divider">or</div>
+    <div class="link-row">
+      Don't have an account? <a href="#" onclick="showPage('signupPage');return false;">Create one</a>
+    </div>
+  </div>
+</div>
+
+<!-- SIGNUP PAGE -->
+<div class="page hidden" id="signupPage">
+  <div class="card">
+    <div class="brand">
+      <div class="brand-icon"><i class="ti ti-salad" aria-hidden="true"></i></div>
+      <div class="brand-name">Calorie<span>X</span></div>
+    </div>
+    <p class="form-title">Create account</p>
+    <p class="form-sub">Start your nutrition journey today</p>
+    <div class="field">
+      <label for="signupName">Full name</label>
+      <div class="field-wrap">
+        <i class="ti ti-user" aria-hidden="true"></i>
+        <input type="text" id="signupName" placeholder="Your name"/>
+      </div>
+      <div class="error-msg" id="nameErr">Name is required.</div>
+    </div>
+    <div class="field">
+      <label for="signupEmail">Email address</label>
+      <div class="field-wrap">
+        <i class="ti ti-mail" aria-hidden="true"></i>
+        <input type="email" id="signupEmail" placeholder="you@example.com"/>
+      </div>
+      <div class="error-msg" id="signupEmailErr">Enter a valid email.</div>
+    </div>
+    <div class="field">
+      <label for="signupPass">Password</label>
+      <div class="field-wrap">
+        <i class="ti ti-lock" aria-hidden="true"></i>
+        <input type="password" id="signupPass" placeholder="At least 6 characters"/>
+        <button class="toggle-pass" onclick="togglePass('signupPass',this)" aria-label="Toggle password visibility">
+          <i class="ti ti-eye"></i>
+        </button>
+      </div>
+      <div class="error-msg" id="signupPassErr">Password must be at least 6 characters.</div>
+    </div>
+    <button class="btn-primary" onclick="doSignup()">
+      <i class="ti ti-check" aria-hidden="true"></i> Create account
+    </button>
+    <div class="divider">or</div>
+    <div class="link-row">
+      Already have an account? <a href="#" onclick="showPage('loginPage');return false;">Sign in</a>
+    </div>
+  </div>
+</div>
+
+<!-- TRACKER PAGE -->
+<div class="page hidden" id="trackerPage">
+  <div class="tracker-wrap">
+    <div class="top-bar">
+      <div class="top-bar-brand">
+        <div class="mini-icon"><i class="ti ti-salad" aria-hidden="true"></i></div>
+        <span>CalorieX</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="user-badge" id="userBadge">
+          <i class="ti ti-user" style="font-size:13px;vertical-align:-1px;margin-right:4px;" aria-hidden="true"></i>
+          <span id="userNameDisplay">User</span>
+        </div>
+        <button class="logout-btn" onclick="doLogout()">
+          <i class="ti ti-logout" style="font-size:14px;" aria-hidden="true"></i> Logout
+        </button>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Consumed</div>
+        <div class="stat-value" id="totalCalories">0 <span class="stat-unit">kcal</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Remaining</div>
+        <div class="stat-value" id="remaining">2000 <span class="stat-unit">kcal</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Entries</div>
+        <div class="stat-value" id="entryCount">0</div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-hd">
+        <span class="section-lbl">Daily progress</span>
+        <span class="section-val" id="goalProgress">0%</span>
+      </div>
+      <div class="bar-bg"><div class="bar-fill" id="progressFill"></div></div>
+      <div class="feedback-box" id="feedbackBox">
+        <i class="ti ti-leaf" id="feedbackIcon" style="color:var(--accent);" aria-hidden="true"></i>
+        <span id="feedbackText" style="color:#9fe1cb;">Log your first meal to get started.</span>
+      </div>
+    </div>
+    <div class="section">
+      <div class="input-row">
+        <input class="cal-input" type="number" id="calorieInput" placeholder="Enter calories (e.g. 350)" min="1"/>
+        <button class="add-btn" onclick="addCalories()">
+          <i class="ti ti-plus" aria-hidden="true"></i> Add
+        </button>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-hd">
+        <span class="section-lbl">
+          <i class="ti ti-list" style="font-size:14px;vertical-align:-1px;margin-right:4px;" aria-hidden="true"></i>Entry log
+        </span>
+      </div>
+      <div class="log-list" id="logList">
+        <div class="empty-log" id="emptyMsg">No entries yet</div>
+      </div>
+    </div>
+    <button class="reset-btn" onclick="resetAll()">
+      <i class="ti ti-refresh" style="font-size:15px;" aria-hidden="true"></i> Reset day
+    </button>
+  </div>
+</div>
+
+<script>
+const dailyGoal = 2000;
+let totalCalories = 0;
+let entries = 0;
+let log = [];
+let currentUser = '';
+const users = {};
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('active');
+    p.classList.add('hidden');
+  });
+  const el = document.getElementById(id);
+  el.classList.remove('hidden');
+  requestAnimationFrame(() => el.classList.add('active'));
+}
+
+function togglePass(inputId, btn) {
+  const inp = document.getElementById(inputId);
+  const isText = inp.type === 'text';
+  inp.type = isText ? 'password' : 'text';
+  btn.querySelector('i').className = isText ? 'ti ti-eye' : 'ti ti-eye-off';
+}
+
+function setErr(fieldId, errId, show) {
+  const f = document.getElementById(fieldId);
+  const e = document.getElementById(errId);
+  if (show) { f.classList.add('err'); e.classList.add('show'); }
+  else { f.classList.remove('err'); e.classList.remove('show'); }
+}
+
+function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  let ok = true;
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  setErr('loginEmail','emailErr', !emailOk); if (!emailOk) ok=false;
+  const passOk = pass.length >= 6;
+  setErr('loginPass','passErr', !passOk); if (!passOk) ok=false;
+  if (!ok) return;
+  if (!users[email]) {
+    setErr('loginEmail','emailErr',true);
+    document.getElementById('emailErr').textContent='No account found with this email.';
+    return;
+  }
+  if (users[email].pass !== pass) {
+    setErr('loginPass','passErr',true);
+    document.getElementById('passErr').textContent='Incorrect password.';
+    return;
+  }
+  currentUser = users[email].name;
+  document.getElementById('userNameDisplay').textContent = currentUser;
+  resetAll();
+  showPage('trackerPage');
+}
+
+function doSignup() {
+  const name  = document.getElementById('signupName').value.trim();
+  const email = document.getElementById('signupEmail').value.trim();
+  const pass  = document.getElementById('signupPass').value;
+  let ok = true;
+  setErr('signupName','nameErr',!name); if (!name) ok=false;
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  setErr('signupEmail','signupEmailErr',!emailOk); if (!emailOk) ok=false;
+  const passOk = pass.length >= 6;
+  setErr('signupPass','signupPassErr',!passOk); if (!passOk) ok=false;
+  if (!ok) return;
+  users[email] = { name, pass };
+  currentUser = name;
+  document.getElementById('userNameDisplay').textContent = currentUser;
+  resetAll();
+  showPage('trackerPage');
+}
+
+function doLogout() {
+  currentUser = '';
+  document.getElementById('loginEmail').value='';
+  document.getElementById('loginPass').value='';
+  showPage('loginPage');
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('trackerPage').classList.contains('active'))
+    addCalories();
+});
+
+function addCalories() {
+  const inp = document.getElementById('calorieInput');
+  let cal = Number(inp.value);
+  if (cal <= 0 || isNaN(cal)) {
+    inp.classList.add('err');
+    setTimeout(() => inp.classList.remove('err'), 800);
+    return;
+  }
+  totalCalories += cal;
+  entries++;
+  log.push(cal);
+  updateUI();
+  inp.value='';
+  inp.focus();
+}
+
+function updateUI() {
+  let pct = Math.min((totalCalories/dailyGoal)*100,100);
+  let rem = Math.max(dailyGoal-totalCalories,0);
+  document.getElementById('totalCalories').innerHTML = totalCalories + ' <span class="stat-unit">kcal</span>';
+  document.getElementById('remaining').innerHTML = rem + ' <span class="stat-unit">kcal</span>';
+  document.getElementById('entryCount').textContent = entries;
+  document.getElementById('goalProgress').textContent = pct.toFixed(0)+'%';
+  document.getElementById('progressFill').style.width = pct+'%';
+
+  let barColor,bgColor,borderColor,textColor,iconClass,msg;
+  if (totalCalories<=800) {
+    barColor='#1d9e75';bgColor='rgba(29,158,117,0.12)';borderColor='rgba(29,158,117,0.25)';
+    textColor='#9fe1cb';iconClass='ti-leaf';msg="You're off to a healthy start!";
+  } else if (totalCalories<=1600) {
+    barColor='#378add';bgColor='rgba(55,138,221,0.12)';borderColor='rgba(55,138,221,0.25)';
+    textColor='#85b7eb';iconClass='ti-trending-up';msg='Good progress, keep it balanced!';
+  } else if (totalCalories<2000) {
+    barColor='#ef9f27';bgColor='rgba(239,159,39,0.12)';borderColor='rgba(239,159,39,0.25)';
+    textColor='#fac775';iconClass='ti-alert-triangle';msg='Almost at your limit — stay mindful!';
+  } else {
+    barColor='#e24b4a';bgColor='rgba(226,75,74,0.12)';borderColor='rgba(226,75,74,0.25)';
+    textColor='#f09595';iconClass='ti-circle-check';msg='Daily goal reached! Stay mindful.';
+  }
+  if (entries>10 && totalCalories<dailyGoal) {
+    bgColor='rgba(239,159,39,0.12)';borderColor='rgba(239,159,39,0.25)';
+    textColor='#fac775';iconClass='ti-eye';msg='Frequent snacking detected — pace yourself.';
+  }
+  document.getElementById('progressFill').style.background=barColor;
+  const fb=document.getElementById('feedbackBox');
+  fb.style.background=bgColor; fb.style.borderColor=borderColor;
+  const ic=document.getElementById('feedbackIcon');
+  ic.className='ti '+iconClass; ic.style.color=textColor;
+  document.getElementById('feedbackText').style.color=textColor;
+  document.getElementById('feedbackText').textContent=msg;
+
+  const list=document.getElementById('logList');
+  list.innerHTML='';
+  log.slice().reverse().forEach((cal,i)=>{
+    const idx=log.length-i;
+    const el=document.createElement('div');
+    el.className='log-item';
+    el.innerHTML=`<span class="log-num">Entry ${idx}</span><span class="log-cal">${cal} kcal</span>`;
+    list.appendChild(el);
+  });
+}
+
+function resetAll() {
+  totalCalories=0; entries=0; log=[];
+  document.getElementById('totalCalories').innerHTML='0 <span class="stat-unit">kcal</span>';
+  document.getElementById('remaining').innerHTML='2000 <span class="stat-unit">kcal</span>';
+  document.getElementById('entryCount').textContent='0';
+  document.getElementById('goalProgress').textContent='0%';
+  const f=document.getElementById('progressFill');
+  f.style.width='0%'; f.style.background='#1d9e75';
+  document.getElementById('logList').innerHTML='<div class="empty-log" id="emptyMsg">No entries yet</div>';
+  const fb=document.getElementById('feedbackBox');
+  fb.style.background='rgba(29,158,117,0.12)'; fb.style.borderColor='rgba(29,158,117,0.25)';
+  const ic=document.getElementById('feedbackIcon');
+  ic.className='ti ti-leaf'; ic.style.color='#1d9e75';
+  document.getElementById('feedbackText').style.color='#9fe1cb';
+  document.getElementById('feedbackText').textContent='Log your first meal to get started.';
+}
+</script>
+</body>
+</html>
